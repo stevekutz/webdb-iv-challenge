@@ -16,3 +16,13 @@ function getDishes() {
     return db('dishes');
 }
 
+function getDishID(id) {
+    return db('dishes')
+        .where('id', id);
+
+}
+
+function addDish(newDish) {
+    return db('dishes')
+        .insert('newDish');
+}
