@@ -30,7 +30,8 @@ router.get('/:id', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    const newDish = req.body
+    const newDish = req.body;
+    Dishes.addDish(newDish)
         .then(idLAstAdded => {
             res.status(200).json(idLAstAdded);
         })
