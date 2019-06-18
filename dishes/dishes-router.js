@@ -1,44 +1,83 @@
-const router = require('express').Router();
-const Dishes = require('./dishes-model');
+const express = require('express');
+const Dishes  = require('./dishes-model.js');
+const router = express.Router();
 
-router.get('/', (req, res) => {
-    Dishes.getDishes()
-        .then(dishes => {
-            res.status(200).json(dishes)
-        })
-        .catch(err => {
-            res.status(500).json(err);
-         })
+router.get('/', async (req, res) => {
+
+    try{
+        const dishes = await Dishes.getDishes();
+        res.status(200).json(dishes);
+
+    } catch (err) {
+        res.status(500).json({
+            message: `Error getting dishes`
+        });
+    }
 
 })
 
-router.get('/:id', (req, res) => {
+/*
+router.get('/:id', async (req, res) => {
     const {id} = req.params;
-    Dishes.getDishID(id)
-        .then(dishName => {
-            if(dishName){
-                res.status(200).json(dishName);
-            } else {
-                res.status(404).json({
-                    message: `dish with id ${id} not found`
-                })
-            }
+
+    try{
+        const dish = await Dishes.getDish(id)
+
+        if(dish) {
+            const recipesArr = dish.map(obj => {
+                const recipe = {name: obj.recipe};
+                return recipe;
+            })
+            const dishResult = {id: dish[0].id, name: dish[0].dish, recipes: recipesArr};
+            res.status(200).json(dishResult);
+        } else {
+            res.status(404).json({
+                message: `Dish with id ${id} no found`
+            })
+        }
+    } catch (err) {
+        res.status(500).json({
+            message: `Error getting Dishes, check router`
         })
-        .catch(err => {
-            res.status(500).json(err);
-        })
+    }
+
+});
+*/
+
+router.get('/:id', async (req, res) => {
+    try {
+        const dish = await Dishes.getDish(req.params.id);
+        if (dish) {
+            const recipes= dish.map(obj => {
+                const recipe = {name: obj.recipe};
+                return recipe;
+            })
+            const dishObj = {id: dish[0].id, name: dish[0].dish, recipes: recipes};
+            res.status(200).json(dishObj);
+        } else {
+            res.status(404).json({ message: "The dish with the specified ID does not exist." })
+        }
+    } catch (error) {
+        res.status(500).json({ message: "The dish information could not be retrieved", error: error });
+    }
 })
 
-router.post('/', (req, res) => {
+
+
+router.post('/', async (req, res) => {
     const newDish = req.body;
-    Dishes.addDish(newDish)
-        .then(idLAstAdded => {
-            res.status(200).json(idLAstAdded);
+    
+    try {
+        const dish = await Dishes.addDish(newDish);
+        res.status(201).json(dish)
+
+    } catch (err) {
+        res.status(500).json({
+            message: `Error getting Dishes, check router`
         })
-        .catch(err => {
-            res.status(500).json(err);
-        })
-})
+    }
+
+});
 
 
 

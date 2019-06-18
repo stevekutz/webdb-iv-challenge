@@ -1,12 +1,12 @@
-const db = require('../data/dbConfig');
+const knex = require('knex');
+const knexConfig = require('../knexfile.js');
+const db = knex(knexConfig.development);
 
-const knex = require('knex'); 
 
-// ALL of these methods resolve to a promise
 module.exports = {
     getDishes,
     addDish,
-    getDishID,
+    getDish,
 //    updateDish,
 //    removeDish,
 }
@@ -16,13 +16,21 @@ function getDishes() {
     return db('dishes');
 }
 
-function getDishID(id) {
-    return db('dishes')
-        .where('id', id);
-
+function getDish(id) {
+       // return db('dishes')
+       // .where('id', id);
+       return db
+        .select('dishes.id', 'dishes.name as dish', 'recipes.name as recipe')
+        .from('dishes')
+        .leftJoin('recipes', 'dishes.id', 'recipes.dish_id')
+        .where('dishes.id', Number(id));
+    
 }
 
+
+// FIX !!!!!
 function addDish(newDish) {
     return db('dishes')
-        .insert('newDish');
+        .insert(newDish)
+        .then(ids => ({id: ids[0]}));
 }
